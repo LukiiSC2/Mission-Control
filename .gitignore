@@ -1,0 +1,15 @@
+bin/
+obj/
+.direnv/
+.idea/
+.vscode/
+*.user
+
+# Test results & coverage
+TestResults/
+*.trx
+coverage/
+
+# Rider / Visual Studio cache
+.vs/
+*.DotSettings.user
