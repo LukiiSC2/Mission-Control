@@ -7,7 +7,8 @@
         x:Class="MissionControl.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="MissionControl">
+        Title="Smart Travel Planner"
+        Background = "#224248">
 
   <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
@@ -15,8 +16,42 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <TextBox Text="{Binding Greeting}"
-           HorizontalAlignment="Center"
-           VerticalAlignment="Center" />
+  <Window.Styles>
+    <StyleInclude Source = "/Styles/MainStyles.axaml"/>
+  </Window.Styles>
+  <DockPanel LastChildFill = "True">
+    <Border Background="#4C2365" HorizontalAlignment="Stretch" DockPanel.Dock="Top" Padding="15">
+      <TextBlock Classes = "title" Text="Smart Travel Planner" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </Border>
+    <Grid ColumnDefinitions="Auto,Auto,Auto" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Margin = "30">
+      <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTraveler}"/>
+      <Button Classes = "small" Grid.Column="1" Content="Load"/>
+      <Button Classes = "small" Grid.Column="2" Content="Clear Route"/>
+    </Grid>
+    <Grid ColumnDefinitions = "400, *" Margin = "30">
+      <StackPanel Grid.Column = "0">
+        <StackPanel>
+          <TextBlock Classes = "title" Text = "1. Traveler Details"/>
+          <TextBlock Text = "Traveler name: "/>
+          <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerName, Mode=TwoWay}"/>
+          <TextBlock Text = "Current location: "/>
+          <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerLocation, Mode=TwoWay}"/>
+          <Button Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTraveler}"/>
+          <TextBlock Text = "{Binding TravelerCreateStatus}" TextWrapping = "Wrap"/>
+        </StackPanel>
+        <StackPanel Margin = "0, 40, 0, 0">
+          <TextBlock Classes = "title" Text = "2. Map and Route Planing"/>
+          <Button Classes = "big" Content = "Load Map (.txt)..."/>
+          <TextBlock Text = "Destinantion city:"/>
+          <TextBox PlaceholderText = "e.g. Kharkiv"/>
+          <Button Classes = "big" Content = "Plan Route"/>
+        </StackPanel>
+      </StackPanel>
+      <StackPanel Grid.Column = "1" Margin = "40, 0, 0, 0">
+        <TextBlock Classes = "title" Text = "3. Planned Route"/>
+        <TextBlock Classes = "title" Text = "Total distance: " Margin = "20, 0, 0, 0"/>
+      </StackPanel>
+    </Grid>
+  </DockPanel>
 
 </Window>
