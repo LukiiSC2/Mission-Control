@@ -1,0 +1,5 @@
+{
+  "name": "Alice",
+  "currentLocation": "Odesa",
+  "route": ["Odesa", "Kyiv", "Lviv", "Warsaw"]
+}

@@ -1,0 +1,29 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="MissionControl.Views.Dialogs.MessageDialogWindow"
+        Title="Message"
+        Width="420"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+  <Border Padding="20">
+    <StackPanel Spacing="16">
+      <TextBlock Name="TitleBlock"
+                 FontSize="18"
+                 FontWeight="SemiBold"
+                 TextWrapping="Wrap" />
+
+      <TextBlock Name="ContentBlock"
+                 FontSize="14"
+                 Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                 TextWrapping="Wrap" />
+
+      <Button Content="OK"
+              HorizontalAlignment="Right"
+              MinWidth="90"
+              Click="OnOkButtonClick"
+              IsDefault="True" />
+    </StackPanel>
+  </Border>
+</Window>

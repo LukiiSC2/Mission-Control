@@ -23,33 +23,42 @@
     <Border Background="#4C2365" HorizontalAlignment="Stretch" DockPanel.Dock="Top" Padding="15">
       <TextBlock Classes = "title" Text="Smart Travel Planner" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Border>
-    <Grid ColumnDefinitions="Auto,Auto,Auto" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Margin = "30">
-      <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTraveler}"/>
-      <Button Classes = "small" Grid.Column="1" Content="Load"/>
-      <Button Classes = "small" Grid.Column="2" Content="Clear Route"/>
+    <Grid ColumnDefinitions="Auto,Auto,Auto, *" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Margin = "30">
+      <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTravelerCommand}"/>
+      <Button Classes = "small" Grid.Column="1" Content="Load" Command = "{Binding LoadTravelerCommand}"/>
+      <Button Classes = "small" Grid.Column="2" Content="Clear Route" Command = "{Binding ClearRouteCommand}"/>
+      <Button Grid.Column="3"
+        Content="Exit"
+        Command="{Binding ExitCommand}"
+        HorizontalAlignment="Right"
+        VerticalAlignment="Center"/>
     </Grid>
     <Grid ColumnDefinitions = "400, *" Margin = "30">
       <StackPanel Grid.Column = "0">
         <StackPanel>
           <TextBlock Classes = "title" Text = "1. Traveler Details"/>
           <TextBlock Text = "Traveler name: "/>
-          <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerName, Mode=TwoWay}"/>
+          <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerDetails.TravelerName, Mode=TwoWay}"/>
           <TextBlock Text = "Current location: "/>
-          <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerLocation, Mode=TwoWay}"/>
-          <Button Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTraveler}"/>
-          <TextBlock Text = "{Binding TravelerCreateStatus}" TextWrapping = "Wrap"/>
+          <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerDetails.TravelerLocation, Mode=TwoWay}"/>
+          <Button Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTravelerCommand}"/>
         </StackPanel>
         <StackPanel Margin = "0, 40, 0, 0">
           <TextBlock Classes = "title" Text = "2. Map and Route Planing"/>
-          <Button Classes = "big" Content = "Load Map (.txt)..."/>
+          <Button Classes = "big" Content = "Load Map (.txt)..." Command = "{Binding LoadMapCommand}"/>
           <TextBlock Text = "Destinantion city:"/>
-          <TextBox PlaceholderText = "e.g. Kharkiv"/>
-          <Button Classes = "big" Content = "Plan Route"/>
+          <TextBox PlaceholderText = "e.g. Kharkiv" Text = "{Binding RoutePlanner.DestinationCity, Mode=TwoWay}"/>
+          <Button Classes = "big" Content = "Plan Route" Command = "{Binding PlanRouteCommand}"/>
         </StackPanel>
       </StackPanel>
       <StackPanel Grid.Column = "1" Margin = "40, 0, 0, 0">
         <TextBlock Classes = "title" Text = "3. Planned Route"/>
-        <TextBlock Classes = "title" Text = "Total distance: " Margin = "20, 0, 0, 0"/>
+        <TextBlock Classes = "title" Margin = "20, 0, 0, 0">
+          <Run Text = "Total Distance: "/>
+          <Run Text = "{Binding RoutePlanner.TotalDistanceText}" Foreground="#DF00FF"/>
+        </TextBlock>
+        <TextBlock Text = "Full route:" FontWeight = "Bold"/>
+        <TextBlock Text = "{Binding RoutePlanner.FullRouteDisplay}" Foreground="#DF00FF" Classes = "title" Margin = "20, 0, 0, 0"/>
       </StackPanel>
     </Grid>
   </DockPanel>
