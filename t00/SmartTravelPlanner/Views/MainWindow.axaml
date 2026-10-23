@@ -27,11 +27,7 @@
       <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTravelerCommand}"/>
       <Button Classes = "small" Grid.Column="1" Content="Load" Command = "{Binding LoadTravelerCommand}"/>
       <Button Classes = "small" Grid.Column="2" Content="Clear Route" Command = "{Binding ClearRouteCommand}"/>
-      <Button Grid.Column="3"
-        Content="Exit"
-        Command="{Binding ExitCommand}"
-        HorizontalAlignment="Right"
-        VerticalAlignment="Center"/>
+      <Button Grid.Column="3" Content="Exit" Command="{Binding ExitCommand}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
     </Grid>
     <Grid ColumnDefinitions = "400, *" Margin = "30">
       <StackPanel Grid.Column = "0">
@@ -41,7 +37,11 @@
           <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerDetails.TravelerName, Mode=TwoWay}"/>
           <TextBlock Text = "Current location: "/>
           <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerDetails.TravelerLocation, Mode=TwoWay}"/>
-          <Button Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTravelerCommand}"/>
+          <Grid ColumnDefinitions="*, 10, *">
+            <Button Grid.Column="0" Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTravelerCommand}"/>
+            <Button Grid.Column="2" Classes = "big" Content = "Delete Traveler" Command = "{Binding DeleteTravelerCommand}"/>
+          </Grid>
+          <TextBlock Text="{Binding TravelerDetails.CurrentTravelerDisplay, Mode=TwoWay}"/>
         </StackPanel>
         <StackPanel Margin = "0, 40, 0, 0">
           <TextBlock Classes = "title" Text = "2. Map and Route Planing"/>

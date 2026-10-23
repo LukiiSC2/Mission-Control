@@ -21,7 +21,7 @@ public partial class MainViewModel : ObservableObject
     {}
     public MainViewModel(IDialogService dialogService)
         : this(dialogService, (dialogService as IFileDialogService) ?? new AvaloniaDialogService())
-    { }
+    {}
     public MainViewModel(IDialogService dialogService, IFileDialogService fileDialogService)
     {
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -55,4 +55,5 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
     public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
     public IAsyncRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
+    public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
 }

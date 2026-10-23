@@ -110,6 +110,24 @@ public partial class TravelerDetailsViewModel(IDialogService dialogService, IFil
             await _dialogService.ShowMessageAsync(DialogTitles.MapError, errorMessage);
         }
     }
+    [RelayCommand]
+    public async Task DeleteTraveler()
+    {
+        if (CurrentTraveler == null)
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.Error, AppMessages.NoTravelerToDeleteError);
+            return;
+        }
+
+        string previousName = CurrentTraveler.GetName();
+        SetTraveler(null);
+
+        TravelerName = string.Empty;
+        TravelerLocation = string.Empty;
+
+        string successMessage = AppMessages.TravelerDeletedSuccess(previousName);
+        await _dialogService.ShowMessageAsync(DialogTitles.Success, successMessage);
+    }
     public void SetTraveler(Traveler? traveler)
     {
         CurrentTraveler = traveler;
