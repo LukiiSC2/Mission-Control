@@ -3,11 +3,13 @@
         xmlns:vm="using:MissionControl.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="950" d:DesignHeight="680"
         x:Class="MissionControl.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Smart Travel Planner"
+        Width="950" Height="680"
+        WindowStartupLocation="CenterScreen"
         Background = "#224248">
 
   <Design.DataContext>
@@ -21,7 +23,10 @@
   </Window.Styles>
   <DockPanel LastChildFill = "True">
     <Border Background="#4C2365" HorizontalAlignment="Stretch" DockPanel.Dock="Top" Padding="15">
-      <TextBlock Classes = "title" Text="Smart Travel Planner" FontSize="26" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      <Grid ColumnDefinitions="*, Auto">
+        <TextBlock Classes = "title" Text="Smart Travel Planner" FontSize="26" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1" Text="{Binding RoutePlanner.LoadedMapInfo}" Foreground="#E0E0E0" FontStyle="Italic" VerticalAlignment="Center"/>
+      </Grid>
     </Border>
     <Grid ColumnDefinitions="Auto,Auto,Auto, *" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Margin = "30">
       <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTravelerCommand}"/>
@@ -37,16 +42,18 @@
       <StackPanel Grid.Column = "0">
         <StackPanel>
           <TextBlock Classes = "title" Text = "1. Traveler Details"/>
+          <TextBlock Text="{Binding TravelerDetails.CurrentTravelerDisplay}" Foreground="#B388FF" Margin="0,0,0,10" FontStyle="Italic"/>
           <TextBlock Text = "Traveler name: "/>
           <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerDetails.TravelerName, Mode=TwoWay}"/>
           <TextBlock Text = "Current location: "/>
           <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerDetails.TravelerLocation, Mode=TwoWay}"/>
           <Button Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTravelerCommand}"/>
         </StackPanel>
-        <StackPanel Margin = "0, 40, 0, 0">
-          <TextBlock Classes = "title" Text = "2. Map and Route Planing"/>
+        <StackPanel Margin = "0, 30, 0, 0">
+          <TextBlock Classes = "title" Text = "2. Map and Route Planning"/>
           <Button Classes = "big" Content = "Load Map (.txt)..." Command = "{Binding LoadMapCommand}"/>
-          <TextBlock Text = "Destinantion city:"/>
+          <TextBlock Text = "{Binding RoutePlanner.LoadedMapInfo}" Foreground="#B388FF" Margin="0,5,0,10" FontStyle="Italic"/>
+          <TextBlock Text = "Destination city:"/>
           <TextBox PlaceholderText = "e.g. Kharkiv" Text = "{Binding RoutePlanner.DestinationCity, Mode=TwoWay}"/>
           <Button Classes = "big" Content = "Plan Route" Command = "{Binding PlanRouteCommand}"/>
         </StackPanel>

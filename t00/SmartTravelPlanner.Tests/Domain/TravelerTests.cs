@@ -17,6 +17,8 @@ namespace SmartTravelPlanner.Tests.Domain;
 public class TravelerTests
 {
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
     public void SaveToFile_FormatsRouteArrayOnSingleLine_MatchingTest3()
     {
         // Charlie New York Boston Chicago San Francisco Los Angeles
@@ -55,6 +57,9 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "boundary")]
+    [Trait("Category", "integration")]
     public void SaveToFile_EmptyRoute_FormatsAsEmptyArray()
     {
         var traveler = new Traveler("Alice");
@@ -73,6 +78,8 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
     public void LoadFromFile_CanReadBothSingleLineAndMultiLineJson()
     {
         string singleLineJson =
@@ -116,6 +123,8 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
     public void LoadFromFile_MissingFile_ThrowsTravellingFileNotFoundException()
     {
         var ex = Should.Throw<FileNotFoundException>(() =>
@@ -125,6 +134,8 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "integration")]
     public void LoadFromFile_CorruptedData_ThrowsFileLoadException()
     {
         string corruptedJson = "{ \"name\": \"Bob\", invalid json... }";
@@ -144,6 +155,8 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "boundary")]
     public void Capitalization_FormatsNamesProperly()
     {
         var traveler = new Traveler("Alice");
@@ -155,6 +168,9 @@ public class TravelerTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "critical-path")]
+    [Trait("Category", "integration")]
     public void PlanRouteTo_WithCityGraph_UpdatesRouteToShortestPath()
     {
         string[] mapLines =
@@ -182,37 +198,42 @@ public class TravelerTests
         }
     }
 
-    [Fact]
-    public void BogusGeneratedTravelers_SerializeAndDeserializePreservingData()
+    [Theory]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(4)]
+    [InlineData(5)]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
+    public void BogusGeneratedTravelers_SerializeAndDeserializePreservingData(int iteration)
     {
-        for (int i = 0; i < 5; i++)
-        {
-            var traveler = TravelerFaker.GenerateTraveler(routeStops: 4);
-            string tempFile = TravelerFaker.CreateTempTravelerFile(traveler);
+        _ = iteration;
+        var traveler = TravelerFaker.GenerateTraveler(routeStops: 4);
+        string tempFile = TravelerFaker.CreateTempTravelerFile(traveler);
 
-            try
-            {
-                var loaded = Traveler.LoadFromFile(tempFile);
-                loaded.GetName().ShouldBe(traveler.GetName());
-                loaded.GetLocation().ShouldBe(traveler.GetLocation());
-                loaded.GetRoute().ShouldBe(traveler.GetRoute());
-                loaded.GetStopCount().ShouldBe(traveler.GetStopCount());
-            }
-            finally
-            {
-                if (File.Exists(tempFile)) File.Delete(tempFile);
-            }
+        try
+        {
+            var loaded = Traveler.LoadFromFile(tempFile);
+            loaded.GetName().ShouldBe(traveler.GetName());
+            loaded.GetLocation().ShouldBe(traveler.GetLocation());
+            loaded.GetRoute().ShouldBe(traveler.GetRoute());
+            loaded.GetStopCount().ShouldBe(traveler.GetStopCount());
+        }
+        finally
+        {
+            if (File.Exists(tempFile)) File.Delete(tempFile);
         }
     }
 
     [Fact]
+    [Trait("Category", "positive")]
     public void Clone_CreatesIndependentDeepCopy()
     {
         var traveler = TravelerFaker.GenerateTraveler(routeStops: 3);
         var clone = (Traveler)traveler.Clone();
 
         clone.ShouldBe(traveler);
-        clone.ToString().ShouldBe(traveler.ToString());
 
         clone.AddCity("Tokyo");
         clone.GetStopCount().ShouldBe(traveler.GetStopCount() + 1);

@@ -1,91 +1,107 @@
 using System;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+
 using MissionControl.Views.Dialogs;
 
 namespace MissionControl.Services;
 
 public class AvaloniaDialogService : IDialogService, IFileDialogService
 {
-    private static Window? GetMainWindow()
+    private static Window? GetOwnerWindow()
     {
         if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            return desktop.MainWindow;
+            return desktop.Windows.FirstOrDefault(w => w.IsActive) ?? desktop.MainWindow;
         }
+
         return null;
+    }
+
+    private static IStorageProvider? GetStorageProvider()
+    {
+        var owner = GetOwnerWindow();
+        return owner?.StorageProvider;
     }
 
     public async Task ShowMessageAsync(string title, string message)
     {
-        var owner = GetMainWindow();
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            await Dispatcher.UIThread.InvokeAsync(() => ShowMessageAsync(title, message));
+            return;
+        }
+
+        var owner = GetOwnerWindow();
         var dialog = new MessageDialogWindow(title, message);
 
-        if (owner != null)
+        if (owner is null)
         {
-            await dialog.ShowDialog(owner);
-        }
-        else
-        {
+            dialog.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             dialog.Show();
+            return;
         }
+
+        await dialog.ShowDialog(owner);
     }
 
     public async Task<string?> OpenFileDialogAsync(string title, string extensionFilter, string filterName)
     {
-        var owner = GetMainWindow();
-        if (owner == null) return null;
-
-        var topLevel = TopLevel.GetTopLevel(owner);
-        if (topLevel?.StorageProvider == null) return null;
+        var storage = GetStorageProvider();
+        if (storage is null)
+        {
+            return null;
+        }
 
         var ext = extensionFilter.TrimStart('.');
-        var files = await topLevel.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = title,
             AllowMultiple = false,
-            FileTypeFilter = new[]
-            {
+            FileTypeFilter =
+            [
                 new FilePickerFileType(filterName)
                 {
-                    Patterns = new[] { $"*.{ext}" }
+                    Patterns = [$"*.{ext}"]
                 }
-            }
+            ]
         });
 
-        if (files.Count > 0)
+        if (files.Count == 0)
         {
-            return files[0].TryGetLocalPath() ?? files[0].Path.LocalPath;
+            return null;
         }
 
-        return null;
+        return files[0].TryGetLocalPath() ?? files[0].Path.LocalPath;
     }
 
     public async Task<string?> SaveFileDialogAsync(string title, string defaultFileName, string defaultExtension)
     {
-        var owner = GetMainWindow();
-        if (owner == null) return null;
-
-        var topLevel = TopLevel.GetTopLevel(owner);
-        if (topLevel?.StorageProvider == null) return null;
+        var storage = GetStorageProvider();
+        if (storage is null)
+        {
+            return null;
+        }
 
         var ext = defaultExtension.TrimStart('.');
-        var file = await topLevel.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = title,
             SuggestedFileName = defaultFileName,
             DefaultExtension = ext
         });
 
-        if (file != null)
+        if (file is null)
         {
-            return file.TryGetLocalPath() ?? file.Path.LocalPath;
+            return null;
         }
 
-        return null;
+        return file.TryGetLocalPath() ?? file.Path.LocalPath;
     }
 }

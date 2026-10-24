@@ -1,27 +1,55 @@
 using System;
-using System.IO;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MissionControl.Services;
+
 using MissionControl.Constants;
+using MissionControl.Services;
 
 using Travelling;
 
 namespace MissionControl.ViewModels;
 
-
-public partial class MainViewModel : ObservableObject
+public partial class MainViewModel : ViewModelBase
 {
     private readonly IDialogService _dialogService;
     private readonly IFileDialogService _fileDialogService;
+
+    public TravelerDetailsViewModel TravelerDetails
+    {
+        get;
+    }
+
+    public RoutePlannerViewModel RoutePlanner
+    {
+        get;
+    }
+
+    public IAsyncRelayCommand LoadMapCommand => RoutePlanner.LoadMapCommand;
+
+    public IAsyncRelayCommand CreateTravelerCommand => TravelerDetails.CreateTravelerCommand;
+
+    public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
+
+    public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
+
+    public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
+
+    public IRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
+
     public MainViewModel()
-    : this(new AvaloniaDialogService(), new AvaloniaDialogService())
-    {}
+        : this(new AvaloniaDialogService(), new AvaloniaDialogService())
+    {
+    }
+
     public MainViewModel(IDialogService dialogService)
         : this(dialogService, (dialogService as IFileDialogService) ?? new AvaloniaDialogService())
-    { }
+    {
+    }
+
     public MainViewModel(IDialogService dialogService, IFileDialogService fileDialogService)
     {
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
@@ -32,10 +60,13 @@ public partial class MainViewModel : ObservableObject
 
         TravelerDetails.TravelerChanged += traveler =>
         {
-            if (traveler == null)
+            if (traveler is null)
             {
-                //RoutePlanner.ClearRoute();
+                RoutePlanner.ClearRoute();
+                return;
             }
+
+            RoutePlanner.UpdateRouteDisplay(traveler);
         };
     }
 
@@ -47,12 +78,4 @@ public partial class MainViewModel : ObservableObject
             desktop.Shutdown();
         }
     }
-    public TravelerDetailsViewModel TravelerDetails { get; }
-    public RoutePlannerViewModel RoutePlanner { get; }
-    public IAsyncRelayCommand LoadMapCommand => RoutePlanner.LoadMapCommand;
-    public IAsyncRelayCommand CreateTravelerCommand => TravelerDetails.CreateTravelerCommand;
-    public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
-    public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
-    public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
-    public IAsyncRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
 }

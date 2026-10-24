@@ -17,6 +17,8 @@ namespace SmartTravelPlanner.Tests.Domain;
 public class CityGraphTests
 {
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
     public void ToString_MustPreserveInsertionOrder_MatchingTest4Screenshot()
     {
         // Input:
@@ -68,6 +70,8 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
     public void ToString_MustPreserveInsertionOrder_MatchingTest1()
     {
         // Input:
@@ -113,6 +117,8 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
     public void ToString_WithRandomBogusMap_PreservesAllEdgePairsInOrder()
     {
         var edges = MapFaker.GenerateEdges(6);
@@ -134,6 +140,8 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
     public void LoadFromFile_MissingFile_ThrowsFileNotFoundException()
     {
         Should.Throw<System.IO.FileNotFoundException>(() =>
@@ -142,6 +150,9 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "critical-path")]
+    [Trait("Category", "integration")]
     public void FindShortestPath_FindsOptimalDijkstraRoute()
     {
         string[] lines =
@@ -171,6 +182,9 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    [Trait("Category", "integration")]
     public void FindShortestPath_UnreachableDestination_ReturnsEmpty()
     {
         string[] lines =
@@ -193,6 +207,9 @@ public class CityGraphTests
     }
 
     [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "boundary")]
+    [Trait("Category", "integration")]
     public void FindShortestPath_SameStartAndDestination_ReturnsSingleCity()
     {
         string[] lines = ["Kyiv-Lviv,540"];

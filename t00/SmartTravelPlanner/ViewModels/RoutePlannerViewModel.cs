@@ -1,16 +1,18 @@
 using System;
-using System.IO;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using MissionControl.Services;
+
 using MissionControl.Constants;
+using MissionControl.Services;
 
 using Travelling;
 
 namespace MissionControl.ViewModels;
-    
+
 public partial class RoutePlannerViewModel(
     IDialogService dialogService,
     IFileDialogService fileDialogService,
@@ -36,7 +38,7 @@ public partial class RoutePlannerViewModel(
     private CityGraph? _currentMap;
 
     public ObservableCollection<string> RouteCities { get; } = new();
-    
+
     [RelayCommand]
     public async Task LoadMapAsync()
     {
@@ -44,24 +46,24 @@ public partial class RoutePlannerViewModel(
             DialogTitles.LoadCityMap,
             FileFilterConstants.TxtExtension,
             FileFilterConstants.TxtFilterDescription);
+
         if (string.IsNullOrEmpty(filePath)) return;
 
-        try
-        {
-            CurrentMap = CityGraph.LoadFromFile(filePath);
-            LoadedMapInfo = $"Map: {Path.GetFileName(filePath)}";
-
-            string successMessage = AppMessages.MapLoadedSuccess(filePath);
-            await _dialogService.ShowMessageAsync(DialogTitles.MapLoaded, successMessage);
-        }
-        catch (Exception ex)
-        {
-            CurrentMap = null;
-            LoadedMapInfo = "Failed to load map";
-
-            string errorMessage = AppMessages.FailedToLoadMapError(ex.Message);
-            await _dialogService.ShowMessageAsync(DialogTitles.MapError, errorMessage);
-        }
+        await _dialogService.ExecuteWithDialogAsync(
+            action: () =>
+            {
+                CurrentMap = CityGraph.LoadFromFile(filePath);
+                LoadedMapInfo = $"Map: {Path.GetFileName(filePath)}";
+                return AppMessages.MapLoadedSuccess(filePath);
+            },
+            successTitle: DialogTitles.MapLoaded,
+            errorTitle: DialogTitles.MapError,
+            formatError: ex => AppMessages.FailedToLoadMapError(ex.Message),
+            onError: () =>
+            {
+                CurrentMap = null;
+                LoadedMapInfo = "Failed to load map";
+            });
     }
 
     [RelayCommand]
@@ -99,8 +101,9 @@ public partial class RoutePlannerViewModel(
 
         UpdateRouteDisplay(traveler);
     }
+
     [RelayCommand]
-    public async Task ClearRouteAsync()
+    public void ClearRoute()
     {
         var traveler = _getCurrentTraveler();
         traveler?.ClearRoute();
