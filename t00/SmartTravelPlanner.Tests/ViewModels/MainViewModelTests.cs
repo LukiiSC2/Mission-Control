@@ -37,6 +37,7 @@ public class MainViewModelTests
         vm.LoadMapCommand.ShouldNotBeNull();
         vm.PlanRouteCommand.ShouldNotBeNull();
         vm.ClearRouteCommand.ShouldNotBeNull();
+        vm.DeleteTravelerCommand.ShouldNotBeNull();
     }
 
     [Fact]

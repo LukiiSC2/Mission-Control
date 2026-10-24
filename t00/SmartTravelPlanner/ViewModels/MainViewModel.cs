@@ -40,6 +40,8 @@ public partial class MainViewModel : ViewModelBase
 
     public IRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
 
+    public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
+
     public MainViewModel()
         : this(new AvaloniaDialogService(), new AvaloniaDialogService())
     {

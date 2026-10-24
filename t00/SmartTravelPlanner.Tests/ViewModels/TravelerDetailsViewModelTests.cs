@@ -239,4 +239,43 @@ public class TravelerDetailsViewModelTests
         vm.CurrentTravelerDisplay.ShouldBe(AppMessages.DefaultTravelerStatus);
         notified.ShouldBeNull();
     }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task DeleteTraveler_WhenNoTravelerExists_ShowsError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new TravelerDetailsViewModel(dialogService, fileDialogService);
+
+        await vm.DeleteTravelerCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.Error, AppMessages.NoTravelerToDeleteError);
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "critical-path")]
+    public async Task DeleteTraveler_WhenTravelerExists_ResetsFieldsAndNotifies()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new TravelerDetailsViewModel(dialogService, fileDialogService);
+
+        var traveler = new Traveler("Alice");
+        traveler.SetLocation("Kyiv");
+        vm.SetTraveler(traveler);
+
+        await vm.DeleteTravelerCommand.ExecuteAsync(null);
+
+        vm.CurrentTraveler.ShouldBeNull();
+        vm.TravelerName.ShouldBe(string.Empty);
+        vm.TravelerLocation.ShouldBe(string.Empty);
+        vm.CurrentTravelerDisplay.ShouldBe(AppMessages.DefaultTravelerStatus);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.Success, Arg.Is<string>(msg => msg.Contains("Alice")));
+    }
 }
