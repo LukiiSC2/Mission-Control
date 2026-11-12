@@ -20,7 +20,7 @@ public static class AppMessages
     public const string NoTravelerToSaveError = "No traveler to save. Please create a traveler first!";
 
     public const string DefaultTravelerStatus = "No traveler created yet.";
-    public const string DefaultMapStatus = "Map not loaded";
+    public const string DefaultMapStatus = "Map was not loaded";
     public const string DefaultRouteStatus = "No route planned";
     public const string RouteClearedStatus = "Route cleared";
     public const string ZeroDistance = "0 km";

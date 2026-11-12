@@ -80,4 +80,15 @@ public partial class MainViewModel : ViewModelBase
             desktop.Shutdown();
         }
     }
+    public TravelerDetailsViewModel TravelerDetails { get; }
+    public RoutePlannerViewModel RoutePlanner { get; }
+    public IAsyncRelayCommand LoadMapCommand => RoutePlanner.LoadMapCommand;
+    public IAsyncRelayCommand CreateTravelerCommand => TravelerDetails.CreateTravelerCommand;
+    public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
+    public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
+    public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
+    public IAsyncRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
+    public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
+    public IAsyncRelayCommand AddEdgeCommand => RoutePlanner.AddEdgeCommand;
+    public IAsyncRelayCommand RemoveEdgeCommand => RoutePlanner.RemoveEdgeCommand;
 }
