@@ -46,6 +46,15 @@
         <StackPanel Margin = "0, 40, 0, 0">
           <TextBlock Classes = "title" Text = "2. Map and Route Planing"/>
           <Button Classes = "big" Content = "Load Map (.txt)..." Command = "{Binding LoadMapCommand}"/>
+          <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+            <TextBox Grid.Column="0" PlaceholderText = "e.g CityOne" Text = "{Binding RoutePlanner.CityOne, Mode = TwoWay}"/>
+            <TextBox Grid.Column="1" PlaceholderText = "e.g CityTwo" Text = "{Binding RoutePlanner.CityTwo, Mode = TwoWay}"/>
+            <TextBox Grid.Column="2" PlaceholderText = "e.g 120" Text = "{Binding RoutePlanner.CityDistance, Mode = TwoWay}"/>
+          </Grid>
+          <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+            <Button Grid.Column="0" Classes = "big" Content = "Add Edge" Command ="{Binding AddEdgeCommand}"/>
+            <Button Grid.Column="1" Classes = "big" Content = "Remove Edge" Command ="{Binding RemoveEdgeCommand}"/>
+          </Grid>
           <TextBlock Text = "Destinantion city:"/>
           <TextBox PlaceholderText = "e.g. Kharkiv" Text = "{Binding RoutePlanner.DestinationCity, Mode=TwoWay}"/>
           <Button Classes = "big" Content = "Plan Route" Command = "{Binding PlanRouteCommand}"/>
@@ -59,6 +68,8 @@
         </TextBlock>
         <TextBlock Text = "Full route:" FontWeight = "Bold"/>
         <TextBlock Text = "{Binding RoutePlanner.FullRouteDisplay}" Foreground="#DF00FF" Classes = "title" Margin = "20, 0, 0, 0"/>
+        <TextBlock Text = "Your Map" Classes="title"/>
+        <TextBlock Text="{Binding RoutePlanner.FullMapDisplay}"/>
       </StackPanel>
     </Grid>
   </DockPanel>

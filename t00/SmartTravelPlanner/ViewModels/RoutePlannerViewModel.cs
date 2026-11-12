@@ -10,7 +10,7 @@ using MissionControl.Constants;
 using Travelling;
 
 namespace MissionControl.ViewModels;
-    
+
 public partial class RoutePlannerViewModel(
     IDialogService dialogService,
     IFileDialogService fileDialogService,
@@ -33,8 +33,16 @@ public partial class RoutePlannerViewModel(
     private string _fullRouteDisplay = AppMessages.DefaultRouteStatus;
 
     [ObservableProperty]
-    private CityGraph? _currentMap;
+    private string _fullMapDisplay = AppMessages.DefaultMapStatus;
 
+    [ObservableProperty]
+    private CityGraph? _currentMap;
+    [ObservableProperty]
+    private string _cityOne = string.Empty;
+    [ObservableProperty]
+    private string _cityTwo = string.Empty;
+    [ObservableProperty]
+    private int _cityDistance;
     public ObservableCollection<string> RouteCities { get; } = new();
     
     [RelayCommand]
@@ -53,6 +61,7 @@ public partial class RoutePlannerViewModel(
 
             string successMessage = AppMessages.MapLoadedSuccess(filePath);
             await _dialogService.ShowMessageAsync(DialogTitles.MapLoaded, successMessage);
+            UpdateMapDisplay(CurrentMap);
         }
         catch (Exception ex)
         {
@@ -109,7 +118,60 @@ public partial class RoutePlannerViewModel(
         FullRouteDisplay = AppMessages.RouteClearedStatus;
         TotalDistanceText = AppMessages.ZeroDistance;
     }
+    [RelayCommand]
+    public async Task AddEdgeAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CityOne) || string.IsNullOrWhiteSpace(CityTwo))
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.ValidationError, "Please enter both city names.");
+            return;
+        }
 
+        if (CityDistance <= 0)
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.ValidationError, "Distance must be greater than zero.");
+            return;
+        }
+        CurrentMap ??= new CityGraph();
+        CurrentMap.AddEdge(CityOne.Trim(), CityTwo.Trim(), CityDistance);
+        UpdateMapDisplay(CurrentMap);
+        CityOne = string.Empty;
+        CityTwo = string.Empty;
+        CityDistance = 0;
+    }
+        [RelayCommand]
+    public async Task RemoveEdgeAsync()
+    {
+        if (CurrentMap == null)
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.Error, AppMessages.MapNotLoadedError);
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(CityOne) || string.IsNullOrWhiteSpace(CityTwo))
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.ValidationError, "Please enter both city names.");
+            return;
+        }
+        if (CityDistance <= 0)
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.ValidationError, "Distance must be greater than zero.");
+            return;
+        }
+        if (!CurrentMap.RemoveEdge(CityOne, CityTwo, CityDistance))
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.ValidationError, "Edge not found");
+            return;
+        }
+        UpdateMapDisplay(CurrentMap);
+        CityOne = string.Empty;
+        CityTwo = string.Empty;
+        CityDistance = 0;
+    }
+
+    public void UpdateMapDisplay(CityGraph CurrentMap)
+    {
+        FullMapDisplay = CurrentMap.ToString();
+    }
     public void UpdateRouteDisplay(Traveler traveler)
     {
         RouteCities.Clear();

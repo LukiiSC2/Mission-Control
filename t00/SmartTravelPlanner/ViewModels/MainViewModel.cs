@@ -56,4 +56,6 @@ public partial class MainViewModel : ObservableObject
     public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
     public IAsyncRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
     public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
+    public IAsyncRelayCommand AddEdgeCommand => RoutePlanner.AddEdgeCommand;
+    public IAsyncRelayCommand RemoveEdgeCommand => RoutePlanner.RemoveEdgeCommand;
 }
