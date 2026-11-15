@@ -457,4 +457,115 @@ public class RoutePlannerViewModelTests
             }
         }
     }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task LoadMap_WhenFileHasNoValidEdges_ShowsMapError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        string invalidFile = MapFaker.CreateTempMapFile(
+            "Traveler: Alice",
+            "Current Location: Kyiv",
+            "Route: Kyiv -> Lviv",
+            "Total Distance: 540 km");
+
+        try
+        {
+            fileDialogService.OpenFileDialogAsync(
+                    DialogTitles.LoadCityMap,
+                    FileFilterConstants.TxtExtension,
+                    FileFilterConstants.TxtFilterDescription)
+                .Returns(invalidFile);
+
+            var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null);
+
+            await vm.LoadMapCommand.ExecuteAsync(null);
+
+            vm.CurrentMap.ShouldBeNull();
+            vm.LoadedMapInfo.ShouldBe("Failed to load map");
+            await dialogService.Received(1)
+                .ShowMessageAsync(
+                    DialogTitles.MapError,
+                    AppMessages.FailedToLoadMapError(AppMessages.InvalidMapFileFormatError));
+        }
+        finally
+        {
+            if (File.Exists(invalidFile)) File.Delete(invalidFile);
+        }
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task SaveMap_WhenNoMapLoaded_ShowsError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null);
+
+        await vm.SaveMapCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.Error, AppMessages.NoMapToSaveError);
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    [Trait("Category", "integration")]
+    public async Task SaveMap_WhenValidMap_WritesLoadableTxtFileAndShowsSuccess()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var tempFile = Path.Combine(Path.GetTempPath(), $"map_save_test_{System.Guid.NewGuid():N}.txt");
+        fileDialogService.SaveFileDialogAsync(
+                DialogTitles.SaveMap,
+                FileFilterConstants.DefaultMapFileName,
+                FileFilterConstants.TxtExtension)
+            .Returns(tempFile);
+        fileDialogService.OpenFileDialogAsync(
+                DialogTitles.LoadCityMap,
+                FileFilterConstants.TxtExtension,
+                FileFilterConstants.TxtFilterDescription)
+            .Returns(tempFile);
+
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Lviv", 540);
+        graph.AddEdge("Lviv", "Warsaw", 390);
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CurrentMap = graph
+        };
+
+        try
+        {
+            await vm.SaveMapCommand.ExecuteAsync(null);
+
+            File.Exists(tempFile).ShouldBeTrue();
+            var lines = await File.ReadAllLinesAsync(tempFile, TestContext.Current.CancellationToken);
+            lines.ShouldBe(["Kyiv-Lviv,540", "Lviv-Warsaw,390"]);
+
+            await dialogService.Received(1)
+                .ShowMessageAsync(DialogTitles.Saved, AppMessages.MapSavedSuccess(tempFile));
+
+            var reloadVm = new RoutePlannerViewModel(
+                Substitute.For<IDialogService>(),
+                fileDialogService,
+                () => null);
+            await reloadVm.LoadMapCommand.ExecuteAsync(null);
+
+            reloadVm.CurrentMap.ShouldNotBeNull();
+            reloadVm.CurrentMap.HasEdge("Kyiv", "Lviv").ShouldBeTrue();
+            reloadVm.CurrentMap.HasEdge("Lviv", "Warsaw").ShouldBeTrue();
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                File.Delete(tempFile);
+            }
+        }
+    }
 }

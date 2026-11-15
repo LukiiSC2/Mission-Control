@@ -15,12 +15,18 @@ public static class AppMessages
     public static string FailedToSaveFileError(string error) => $"Failed to save traveler:\n{error}";
     public static string RouteSavedSuccess(string path) => $"Route successfully saved to:\n{path}";
     public static string FailedToSaveRouteError(string error) => $"Failed to save route:\n{error}";
+    public static string MapSavedSuccess(string path) => $"Map successfully saved to:\n{path}";
+    public static string FailedToSaveMapError(string error) => $"Failed to save map:\n{error}";
+
+    public const string InvalidMapFileFormatError =
+        "No valid map connections found. Each line must use the format: CityA-CityB,Distance (e.g. Kyiv-Lviv,540).";
 
     public const string TravelerNotCreatedError = "Please create or load a traveler first!";
     public const string MapNotLoadedError = "Please load a city map (.txt file) first!";
     public const string NoTravelerToDeleteError = "No traveler to delete!";
     public const string NoTravelerToSaveError = "No traveler to save. Please create a traveler first!";
     public const string NoRouteToSaveError = "No route to save. Please plan a route first!";
+    public const string NoMapToSaveError = "No map to save. Please load or add edges to a map first!";
 
     public const string DefaultTravelerStatus = "No traveler created yet.";
     public const string DefaultMapStatus = "Map not loaded";

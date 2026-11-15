@@ -6,6 +6,7 @@ public static class FileFilterConstants
     public const string JsonExtension = "json";
     public const string JsonFilterDescription = "JSON files (*.json)";
 
+    public const string DefaultMapFileName = "map.txt";
     public const string DefaultRouteFileName = "route.txt";
     public const string TxtExtension = "txt";
     public const string TxtFilterDescription = "Text files (*.txt)";
