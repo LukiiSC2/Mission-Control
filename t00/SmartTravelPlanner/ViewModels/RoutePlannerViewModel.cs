@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -79,7 +80,13 @@ public partial class RoutePlannerViewModel(
         await _dialogService.ExecuteWithDialogAsync(
             action: () =>
             {
-                CurrentMap = CityGraph.LoadFromFile(filePath);
+                var loadedMap = CityGraph.LoadFromFile(filePath);
+                if (loadedMap.GetUniqueEdges().Count == 0)
+                {
+                    throw new InvalidDataException(AppMessages.InvalidMapFileFormatError);
+                }
+
+                CurrentMap = loadedMap;
                 LoadedMapInfo = $"Map: {Path.GetFileName(filePath)}";
                 UpdateMapDisplay(CurrentMap);
                 return AppMessages.MapLoadedSuccess(filePath);
@@ -92,6 +99,39 @@ public partial class RoutePlannerViewModel(
                 CurrentMap = null;
                 LoadedMapInfo = "Failed to load map";
             });
+    }
+
+    [RelayCommand]
+    public async Task SaveMapAsync()
+    {
+        if (CurrentMap is null || CurrentMap.GetUniqueEdges().Count == 0)
+        {
+            await _dialogService.ShowMessageAsync(DialogTitles.Error, AppMessages.NoMapToSaveError);
+            return;
+        }
+
+        var filePath = await _fileDialogService.SaveFileDialogAsync(
+            DialogTitles.SaveMap,
+            FileFilterConstants.DefaultMapFileName,
+            FileFilterConstants.TxtExtension);
+
+        if (string.IsNullOrEmpty(filePath))
+        {
+            return;
+        }
+
+        await _dialogService.ExecuteWithDialogAsync(
+            action: () =>
+            {
+                var lines = CurrentMap.GetUniqueEdges()
+                    .Select(edge => $"{edge.From}-{edge.To},{edge.Distance}");
+                File.WriteAllLines(filePath, lines);
+                LoadedMapInfo = $"Map: {Path.GetFileName(filePath)}";
+                return AppMessages.MapSavedSuccess(filePath);
+            },
+            successTitle: DialogTitles.Saved,
+            errorTitle: DialogTitles.SaveError,
+            formatError: ex => AppMessages.FailedToSaveMapError(ex.Message));
     }
 
     [RelayCommand]

@@ -59,6 +59,7 @@ public partial class MainViewModel : ViewModelBase
     public TravelerDetailsViewModel TravelerDetails { get; }
     public RoutePlannerViewModel RoutePlanner { get; }
     public IAsyncRelayCommand LoadMapCommand => RoutePlanner.LoadMapCommand;
+    public IAsyncRelayCommand SaveMapCommand => RoutePlanner.SaveMapCommand;
     public IAsyncRelayCommand CreateTravelerCommand => TravelerDetails.CreateTravelerCommand;
     public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
     public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
