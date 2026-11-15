@@ -4,6 +4,8 @@ using System.IO;
 
 using Bogus;
 
+using MissionControl.Services;
+
 using Shouldly;
 
 using SmartTravelPlanner.Tests.TestData;
@@ -225,5 +227,66 @@ public class CityGraphTests
         {
             if (File.Exists(tempFile)) File.Delete(tempFile);
         }
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public void AddValidatedEdge_DuplicateReverseDirection_ThrowsInvalidOperationException()
+    {
+        var graph = new CityGraph();
+        graph.AddValidatedEdge("Kyiv", "Kharkiv", 480);
+
+        Should.Throw<InvalidOperationException>(() =>
+            graph.AddValidatedEdge("kharkiv", "KYIV", 480));
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public void AddValidatedEdge_SameCity_ThrowsArgumentException()
+    {
+        var graph = new CityGraph();
+
+        Should.Throw<ArgumentException>(() =>
+            graph.AddValidatedEdge("Kyiv", "kyiv", 100));
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public void AddValidatedEdge_NonPositiveDistance_ThrowsArgumentOutOfRangeException()
+    {
+        var graph = new CityGraph();
+
+        Should.Throw<ArgumentOutOfRangeException>(() =>
+            graph.AddValidatedEdge("Kyiv", "Lviv", 0));
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public void WithoutEdge_CaseInsensitive_RemovesBothDirections()
+    {
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Lviv", 540);
+
+        var updated = graph.WithoutEdge("lviv", "KYIV", 540, out bool removed);
+
+        removed.ShouldBeTrue();
+        updated.HasEdge("Kyiv", "Lviv").ShouldBeFalse();
+        updated.ToString().ShouldBeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    public void WithoutEdge_NonExistentEdge_ReturnsOriginalAndFalse()
+    {
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Lviv", 540);
+
+        var updated = graph.WithoutEdge("Kyiv", "Odesa", 540, out bool removed);
+
+        removed.ShouldBeFalse();
+        updated.ShouldBeSameAs(graph);
     }
 }

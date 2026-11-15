@@ -209,4 +209,252 @@ public class RoutePlannerViewModelTests
             if (File.Exists(mapFile)) File.Delete(mapFile);
         }
     }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public async Task AddEdge_WhenMapIsNull_CreatesCustomMapAndUpdatesDisplay()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CityOne = " Kyiv ",
+            CityTwo = " Kharkiv ",
+            CityDistance = "480"
+        };
+
+        await vm.AddEdgeCommand.ExecuteAsync(null);
+
+        vm.CurrentMap.ShouldNotBeNull();
+        vm.CurrentMap.HasEdge("Kyiv", "Kharkiv").ShouldBeTrue();
+        vm.LoadedMapInfo.ShouldBe(AppMessages.CustomMapLoadedInfo);
+        vm.FullMapDisplay.ShouldContain("Kyiv-Kharkiv,480");
+        vm.CityOne.ShouldBeEmpty();
+        vm.CityTwo.ShouldBeEmpty();
+        vm.CityDistance.ShouldBeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task AddEdge_WhenReverseEdgeAlreadyExists_ShowsValidationError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Kharkiv", 480);
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CurrentMap = graph,
+            CityOne = "kharkiv",
+            CityTwo = "KYIV",
+            CityDistance = "500"
+        };
+
+        await vm.AddEdgeCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1).ShowMessageAsync(
+            DialogTitles.ValidationError,
+            Arg.Is<string>(msg => msg.Contains("already exists")));
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task AddEdge_WhenInvalidDistanceText_ShowsValidationError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CityOne = "Kyiv",
+            CityTwo = "Lviv",
+            CityDistance = "abc"
+        };
+
+        await vm.AddEdgeCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.ValidationError, AppMessages.InvalidDistanceError);
+        vm.CurrentMap.ShouldBeNull();
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task AddEdge_WhenSameCity_ShowsValidationError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CityOne = "Kyiv",
+            CityTwo = "kyiv",
+            CityDistance = "100"
+        };
+
+        await vm.AddEdgeCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.ValidationError, Arg.Is<string>(msg => msg.Contains("cannot be the same")));
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public async Task RemoveEdge_WithWhitespaceAndDifferentCase_RemovesEdgeAndUpdatesDisplay()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Lviv", 540);
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CurrentMap = graph,
+            CityOne = " lviv ",
+            CityTwo = " KYIV ",
+            CityDistance = "540"
+        };
+
+        await vm.RemoveEdgeCommand.ExecuteAsync(null);
+
+        vm.CurrentMap.HasEdge("Kyiv", "Lviv").ShouldBeFalse();
+        vm.FullMapDisplay.ShouldBe(AppMessages.EmptyMapStatus);
+        vm.CityOne.ShouldBeEmpty();
+        vm.CityTwo.ShouldBeEmpty();
+        vm.CityDistance.ShouldBeEmpty();
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    public async Task RemoveEdge_WhenEdgeNotFound_ShowsValidationError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Lviv", 540);
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CurrentMap = graph,
+            CityOne = "Kyiv",
+            CityTwo = "Odesa",
+            CityDistance = "480"
+        };
+
+        await vm.RemoveEdgeCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.ValidationError, AppMessages.EdgeNotFoundError);
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public async Task DeleteSelectedEdge_WhenEdgeSelected_RemovesEdgeAndClearsSelection()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var graph = new CityGraph();
+        graph.AddEdge("Kyiv", "Kharkiv", 480);
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null)
+        {
+            CurrentMap = graph
+        };
+        vm.UpdateMapDisplay(graph);
+
+        vm.MapEdges.Count.ShouldBe(1);
+        vm.HasMapEdges.ShouldBeTrue();
+        vm.SelectedEdge = vm.MapEdges[0];
+        vm.HasSelectedEdge.ShouldBeTrue();
+
+        await vm.DeleteSelectedEdgeCommand.ExecuteAsync(null);
+
+        vm.CurrentMap.HasEdge("Kyiv", "Kharkiv").ShouldBeFalse();
+        vm.MapEdges.ShouldBeEmpty();
+        vm.HasMapEdges.ShouldBeFalse();
+        vm.SelectedEdge.ShouldBeNull();
+        vm.HasSelectedEdge.ShouldBeFalse();
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task SaveRoute_WhenNoTraveler_ShowsError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => null);
+
+        await vm.SaveRouteCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.Error, AppMessages.NoRouteToSaveError);
+        await fileDialogService.DidNotReceiveWithAnyArgs()
+            .SaveFileDialogAsync(default!, default!, default!);
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    [Trait("Category", "boundary")]
+    public async Task SaveRoute_WhenRouteIsEmpty_ShowsError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var traveler = new Traveler("Alice");
+        traveler.SetLocation("Kyiv");
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => traveler);
+
+        await vm.SaveRouteCommand.ExecuteAsync(null);
+
+        await dialogService.Received(1)
+            .ShowMessageAsync(DialogTitles.Error, AppMessages.NoRouteToSaveError);
+    }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public async Task SaveRoute_WhenValidRoute_WritesTxtFileAndShowsSuccess()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        var fileDialogService = Substitute.For<IFileDialogService>();
+        var tempFile = Path.Combine(Path.GetTempPath(), $"route_test_{System.Guid.NewGuid():N}.txt");
+        fileDialogService.SaveFileDialogAsync(
+                DialogTitles.SaveRoute,
+                FileFilterConstants.DefaultRouteFileName,
+                FileFilterConstants.TxtExtension)
+            .Returns(tempFile);
+
+        var traveler = new Traveler("Alice");
+        traveler.SetLocation("Kyiv");
+        traveler.AddCity("Kyiv");
+        traveler.AddCity("Lviv");
+
+        var vm = new RoutePlannerViewModel(dialogService, fileDialogService, () => traveler)
+        {
+            TotalDistanceText = "540 km"
+        };
+
+        try
+        {
+            await vm.SaveRouteCommand.ExecuteAsync(null);
+
+            File.Exists(tempFile).ShouldBeTrue();
+            var text = await File.ReadAllTextAsync(tempFile, TestContext.Current.CancellationToken);
+            text.ShouldContain("Traveler: Alice");
+            text.ShouldContain("Current Location: Kyiv");
+            text.ShouldContain("Route: Kyiv -> Lviv");
+            text.ShouldContain("Total Distance: 540 km");
+
+            await dialogService.Received(1)
+                .ShowMessageAsync(DialogTitles.Saved, AppMessages.RouteSavedSuccess(tempFile));
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                File.Delete(tempFile);
+            }
+        }
+    }
 }

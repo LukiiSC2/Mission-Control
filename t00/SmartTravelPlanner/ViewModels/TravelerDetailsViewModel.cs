@@ -61,7 +61,7 @@ public partial class TravelerDetailsViewModel(IDialogService dialogService, IFil
     public async Task SaveTravelerAsync()
     {
         var traveler = CurrentTraveler;
-        if (traveler == null)
+        if (traveler is null)
         {
             await _dialogService.ShowMessageAsync(DialogTitles.Error, AppMessages.NoTravelerToSaveError);
             return;

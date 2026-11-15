@@ -8,9 +8,9 @@
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Smart Travel Planner"
-        Width="950" Height="680"
-        WindowStartupLocation="CenterScreen"
-        Background = "#224248">
+        Width="980" Height="740"
+        MinWidth="860" MinHeight="620"
+        WindowStartupLocation="CenterScreen">
 
   <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
@@ -21,61 +21,143 @@
   <Window.Styles>
     <StyleInclude Source = "/Styles/MainStyles.axaml"/>
   </Window.Styles>
-  <DockPanel LastChildFill = "True">
-    <Border Background="#4C2365" HorizontalAlignment="Stretch" DockPanel.Dock="Top" Padding="15">
+  <DockPanel LastChildFill="True">
+    <Border Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,0,0,1"
+            DockPanel.Dock="Top"
+            Padding="24,14">
       <Grid ColumnDefinitions="*, Auto">
-        <TextBlock Classes = "title" Text="Smart Travel Planner" FontSize="26" VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="1" Text="{Binding RoutePlanner.LoadedMapInfo}" Foreground="#E0E0E0" FontStyle="Italic" VerticalAlignment="Center"/>
+        <TextBlock Text="Smart Travel Planner" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center"/>
+        <TextBlock Grid.Column="1"
+                   Text="{Binding RoutePlanner.LoadedMapInfo}"
+                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                   FontStyle="Italic"
+                   VerticalAlignment="Center"/>
       </Grid>
     </Border>
-    <Grid ColumnDefinitions="Auto,Auto,Auto, *" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Margin = "30">
-      <Button Classes = "small" Grid.Column="0" Content="Save" Command = "{Binding SaveTravelerCommand}"/>
-      <Button Classes = "small" Grid.Column="1" Content="Load" Command = "{Binding LoadTravelerCommand}"/>
-      <Button Classes = "small" Grid.Column="2" Content="Clear Route" Command = "{Binding ClearRouteCommand}"/>
-      <Button Grid.Column="3" Content="Exit" Command="{Binding ExitCommand}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-    </Grid>
-    <Grid ColumnDefinitions = "400, *" Margin = "30">
-      <StackPanel Grid.Column = "0">
-        <StackPanel>
-          <TextBlock Classes = "title" Text = "1. Traveler Details"/>
-          <TextBlock Text = "Traveler name: "/>
-          <TextBox PlaceholderText = "e.g. Alice" Text="{Binding TravelerDetails.TravelerName, Mode=TwoWay}"/>
-          <TextBlock Text = "Current location: "/>
-          <TextBox PlaceholderText = "e.g. Kharkiv" Text="{Binding TravelerDetails.TravelerLocation, Mode=TwoWay}"/>
-          <Grid ColumnDefinitions="*, 10, *">
-            <Button Grid.Column="0" Classes = "big" Content = "Create Traveler" Command = "{Binding CreateTravelerCommand}"/>
-            <Button Grid.Column="2" Classes = "big" Content = "Delete Traveler" Command = "{Binding DeleteTravelerCommand}"/>
-          </Grid>
-          <TextBlock Text="{Binding TravelerDetails.CurrentTravelerDisplay}" Foreground="#B388FF" Margin="0,10,0,0" FontStyle="Italic"/>
+
+    <Border BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+            BorderThickness="0,1,0,0"
+            DockPanel.Dock="Bottom"
+            Padding="24,12">
+      <Grid ColumnDefinitions="*, Auto">
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+          <Button Content="Save" Command="{Binding SaveTravelerCommand}"/>
+          <Button Content="Load" Command="{Binding LoadTravelerCommand}"/>
+          <Button Content="Save Route" Command="{Binding SaveRouteCommand}"/>
+          <Button Content="Clear Route" Command="{Binding ClearRouteCommand}"/>
         </StackPanel>
-        <StackPanel Margin = "0, 30, 0, 0">
-          <TextBlock Classes = "title" Text = "2. Map and Route Planning"/>
-          <Button Classes = "big" Content = "Load Map (.txt)..." Command = "{Binding LoadMapCommand}"/>
-          <Grid ColumnDefinitions="*,*,*" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
-            <TextBox Grid.Column="0" PlaceholderText = "e.g CityOne" Text = "{Binding RoutePlanner.CityOne, Mode = TwoWay}"/>
-            <TextBox Grid.Column="1" PlaceholderText = "e.g CityTwo" Text = "{Binding RoutePlanner.CityTwo, Mode = TwoWay}"/>
-            <TextBox Grid.Column="2" PlaceholderText = "e.g 120" Text = "{Binding RoutePlanner.CityDistance, Mode = TwoWay}"/>
-          </Grid>
-          <Grid ColumnDefinitions="*,*" DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
-            <Button Grid.Column="0" Classes = "big" Content = "Add Edge" Command ="{Binding AddEdgeCommand}"/>
-            <Button Grid.Column="1" Classes = "big" Content = "Remove Edge" Command ="{Binding RemoveEdgeCommand}"/>
-          </Grid>
-          <TextBlock Text = "Destinantion city:"/>
-          <TextBox PlaceholderText = "e.g. Kharkiv" Text = "{Binding RoutePlanner.DestinationCity, Mode=TwoWay}"/>
-          <Button Classes = "big" Content = "Plan Route" Command = "{Binding PlanRouteCommand}"/>
+        <Button Grid.Column="1" Content="Exit" Command="{Binding ExitCommand}"/>
+      </Grid>
+    </Border>
+
+    <Grid ColumnDefinitions="420, 20, *" Margin="24,20">
+      <ScrollViewer Grid.Column="0">
+        <StackPanel Spacing="16">
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="title" Text="1. Traveler Details" Margin="0,0,0,4"/>
+            <TextBlock Classes="label" Text="Traveler name"/>
+            <TextBox PlaceholderText="e.g. Alice" Text="{Binding TravelerDetails.TravelerName, Mode=TwoWay}"/>
+            <TextBlock Classes="label" Text="Current location" Margin="0,4,0,0"/>
+            <TextBox PlaceholderText="e.g. Kharkiv" Text="{Binding TravelerDetails.TravelerLocation, Mode=TwoWay}"/>
+            <Grid ColumnDefinitions="*, 10, *" Margin="0,6,0,0">
+              <Button Grid.Column="0" Classes="big" Content="Create Traveler" Command="{Binding CreateTravelerCommand}"/>
+              <Button Grid.Column="2" Classes="big" Content="Delete Traveler" Command="{Binding DeleteTravelerCommand}"/>
+            </Grid>
+            <TextBlock Text="{Binding TravelerDetails.CurrentTravelerDisplay}"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                       FontStyle="Italic"
+                       TextWrapping="Wrap"
+                       Margin="0,4,0,0"/>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="card">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="title" Text="2. Map and Route Planning" Margin="0,0,0,4"/>
+            <Button Classes="big" Content="Load Map (.txt)..." Command="{Binding LoadMapCommand}"/>
+            <TextBlock Classes="label" Text="Edit connections" Margin="0,4,0,0"/>
+            <Grid ColumnDefinitions="*, 8, *, 8, *" HorizontalAlignment="Stretch">
+              <TextBox Grid.Column="0" PlaceholderText="e.g. Kyiv" Text="{Binding RoutePlanner.CityOne, Mode=TwoWay}"/>
+              <TextBox Grid.Column="2" PlaceholderText="e.g. Kharkiv" Text="{Binding RoutePlanner.CityTwo, Mode=TwoWay}"/>
+              <TextBox Grid.Column="4" PlaceholderText="e.g. 120" Text="{Binding RoutePlanner.CityDistance, Mode=TwoWay}"/>
+            </Grid>
+            <Grid ColumnDefinitions="*, 10, *" HorizontalAlignment="Stretch">
+              <Button Grid.Column="0" Classes="big" Content="Add Edge" Command="{Binding AddEdgeCommand}"/>
+              <Button Grid.Column="2" Classes="big" Content="Remove Edge" Command="{Binding RemoveEdgeCommand}"/>
+            </Grid>
+            <TextBlock Classes="label" Text="Destination city" Margin="0,4,0,0"/>
+            <TextBox PlaceholderText="e.g. Kharkiv" Text="{Binding RoutePlanner.DestinationCity, Mode=TwoWay}"/>
+            <Button Classes="big" Content="Plan Route" Command="{Binding PlanRouteCommand}" Margin="0,4,0,0"/>
+          </StackPanel>
+        </Border>
         </StackPanel>
-      </StackPanel>
-      <StackPanel Grid.Column = "1" Margin = "40, 0, 0, 0">
-        <TextBlock Classes = "title" Text = "3. Planned Route"/>
-        <TextBlock Classes = "title" Margin = "20, 0, 0, 0">
-          <Run Text = "Total Distance: "/>
-          <Run Text = "{Binding RoutePlanner.TotalDistanceText}" Foreground="#DF00FF"/>
-        </TextBlock>
-        <TextBlock Text = "Full route:" FontWeight = "Bold"/>
-        <TextBlock Text = "{Binding RoutePlanner.FullRouteDisplay}" Foreground="#DF00FF" Classes = "title" Margin = "20, 0, 0, 0"/>
-        <TextBlock Text = "Your Map" Classes="title"/>
-        <TextBlock Text="{Binding RoutePlanner.FullMapDisplay}"/>
-      </StackPanel>
+      </ScrollViewer>
+
+      <Grid Grid.Column="2" RowDefinitions="Auto, 16, *">
+        <Border Grid.Row="0" Classes="card">
+          <StackPanel Spacing="8">
+            <TextBlock Classes="title" Text="3. Planned Route" Margin="0,0,0,4"/>
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <TextBlock Text="Total Distance:" FontWeight="SemiBold" VerticalAlignment="Center"/>
+              <TextBlock Text="{Binding RoutePlanner.TotalDistanceText}"
+                         Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                         FontSize="16"
+                         FontWeight="SemiBold"
+                         VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBlock Classes="label" Text="Full route" Margin="0,4,0,0"/>
+            <TextBlock Text="{Binding RoutePlanner.FullRouteDisplay}"
+                       Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                       FontSize="16"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Classes="card">
+          <Grid RowDefinitions="Auto, 10, *">
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+              <TextBlock Grid.Column="0" Text="Your Map" Classes="title" VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="Delete Selected"
+                      Command="{Binding DeleteSelectedEdgeCommand}"
+                      IsVisible="{Binding RoutePlanner.HasSelectedEdge}"/>
+            </Grid>
+
+            <ListBox Grid.Row="2"
+                     ItemsSource="{Binding RoutePlanner.MapEdges}"
+                     SelectedItem="{Binding RoutePlanner.SelectedEdge, Mode=TwoWay}"
+                     IsVisible="{Binding RoutePlanner.HasMapEdges}"
+                     Background="Transparent">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:MapEdgeItem">
+                  <Grid ColumnDefinitions="*, Auto" Margin="4,2">
+                    <TextBlock Grid.Column="0" VerticalAlignment="Center">
+                      <Run Text="{Binding From}" FontWeight="SemiBold"/>
+                      <Run Text=" ↔ "/>
+                      <Run Text="{Binding To}" FontWeight="SemiBold"/>
+                    </TextBlock>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding DistanceText}"
+                               Foreground="{DynamicResource AccentTextFillColorPrimaryBrush}"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center"/>
+                  </Grid>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <TextBlock Grid.Row="2"
+                       Text="{Binding RoutePlanner.FullMapDisplay}"
+                       IsVisible="{Binding !RoutePlanner.HasMapEdges}"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                       TextWrapping="Wrap"/>
+          </Grid>
+        </Border>
+      </Grid>
     </Grid>
   </DockPanel>
 

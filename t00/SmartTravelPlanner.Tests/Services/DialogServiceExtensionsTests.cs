@@ -68,5 +68,36 @@ public class DialogServiceExtensionsTests
                 errorTitle: "Error",
                 formatError: ex => ex.Message));
     }
+
+    [Fact]
+    [Trait("Category", "positive")]
+    public async Task ExecuteWithErrorDialogAsync_WhenActionSucceeds_DoesNotShowAnyDialog()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        bool executed = false;
+
+        await dialogService.ExecuteWithErrorDialogAsync(
+            action: () => executed = true,
+            errorTitle: "Validation Error");
+
+        executed.ShouldBeTrue();
+        await dialogService.DidNotReceive().ShowMessageAsync(Arg.Any<string>(), Arg.Any<string>());
+    }
+
+    [Fact]
+    [Trait("Category", "negative")]
+    public async Task ExecuteWithErrorDialogAsync_WhenActionThrows_ShowsErrorDialogAndInvokesOnError()
+    {
+        var dialogService = Substitute.For<IDialogService>();
+        bool onErrorCalled = false;
+
+        await dialogService.ExecuteWithErrorDialogAsync(
+            action: () => throw new InvalidOperationException("Duplicate edge"),
+            errorTitle: "Validation Error",
+            onError: () => onErrorCalled = true);
+
+        onErrorCalled.ShouldBeTrue();
+        await dialogService.Received(1).ShowMessageAsync("Validation Error", "Duplicate edge");
+    }
 }
 

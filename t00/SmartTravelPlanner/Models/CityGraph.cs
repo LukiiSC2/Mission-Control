@@ -75,25 +75,6 @@ public class CityGraph
         _edges.Add((to, from, distance));
     }
 
-    public bool RemoveEdge(string from, string to, int distance)
-    {
-        bool removed = false;
-
-        if (_adjacencyList.TryGetValue(from, out var fromList))
-        {
-            removed |= fromList.Remove((to, distance));
-        }
-
-        if (_adjacencyList.TryGetValue(to, out var toList))
-        {
-            removed |= toList.Remove((from, distance));
-        }
-
-        removed |= _edges.Remove((from, to, distance));
-        _edges.Remove((to, from, distance));
-
-        return removed;
-    }
     public List<string> FindShortestPath(string from, string to)
     {
         if (string.IsNullOrEmpty(from) || string.IsNullOrEmpty(to))

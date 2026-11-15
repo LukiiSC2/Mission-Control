@@ -14,6 +14,7 @@ public static class DialogTitles
 
     public const string SaveTraveler = "Save Traveler";
     public const string LoadTraveler = "Load Traveler";
+    public const string SaveRoute = "Save Route";
 
     public const string TravelerLoaded = "Traveler Loaded";
     public const string LoadCityMap = "Load City Map";

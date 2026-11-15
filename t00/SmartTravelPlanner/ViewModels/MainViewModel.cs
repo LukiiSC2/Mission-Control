@@ -18,30 +18,6 @@ public partial class MainViewModel : ViewModelBase
     private readonly IDialogService _dialogService;
     private readonly IFileDialogService _fileDialogService;
 
-    public TravelerDetailsViewModel TravelerDetails
-    {
-        get;
-    }
-
-    public RoutePlannerViewModel RoutePlanner
-    {
-        get;
-    }
-
-    public IAsyncRelayCommand LoadMapCommand => RoutePlanner.LoadMapCommand;
-
-    public IAsyncRelayCommand CreateTravelerCommand => TravelerDetails.CreateTravelerCommand;
-
-    public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
-
-    public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
-
-    public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
-
-    public IRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
-
-    public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
-
     public MainViewModel()
         : this(new AvaloniaDialogService(), new AvaloniaDialogService())
     {
@@ -87,8 +63,13 @@ public partial class MainViewModel : ViewModelBase
     public IAsyncRelayCommand SaveTravelerCommand => TravelerDetails.SaveTravelerCommand;
     public IAsyncRelayCommand LoadTravelerCommand => TravelerDetails.LoadTravelerCommand;
     public IAsyncRelayCommand PlanRouteCommand => RoutePlanner.PlanRouteCommand;
-    public IAsyncRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
+    public IAsyncRelayCommand SaveRouteCommand => RoutePlanner.SaveRouteCommand;
+    public IRelayCommand ClearRouteCommand => RoutePlanner.ClearRouteCommand;
     public IAsyncRelayCommand DeleteTravelerCommand => TravelerDetails.DeleteTravelerCommand;
+
     public IAsyncRelayCommand AddEdgeCommand => RoutePlanner.AddEdgeCommand;
+
     public IAsyncRelayCommand RemoveEdgeCommand => RoutePlanner.RemoveEdgeCommand;
+
+    public IAsyncRelayCommand DeleteSelectedEdgeCommand => RoutePlanner.DeleteSelectedEdgeCommand;
 }
